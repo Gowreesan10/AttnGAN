@@ -164,7 +164,7 @@ class TextDataset(data.Dataset):
 
                     tokens_new = []
                     for t in tokens:
-                        t = t.encode('ascii', 'ignore').decode('ascii')
+                        t = t.encode('ascii', 'ignore').decode('ascii', 'ignore')
                         if len(t) > 0:
                             tokens_new.append(t)
                     all_captions.append(tokens_new)
