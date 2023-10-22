@@ -370,7 +370,9 @@ class condGANTrainer(object):
 
             batch_size = self.batch_size
             nz = cfg.GAN.Z_DIM
-            noise = Variable(torch.FloatTensor(batch_size, nz), volatile=True)
+            with torch.no_grad():
+                    noise = torch.FloatTensor(batch_size, nz)
+            # noise = Variable(torch.FloatTensor(batch_size, nz), volatile=True)
             noise = noise.cuda()
 
             model_dir = cfg.TRAIN.NET_G
@@ -463,14 +465,20 @@ class condGANTrainer(object):
 
                 batch_size = captions.shape[0]
                 nz = cfg.GAN.Z_DIM
-                captions = Variable(torch.from_numpy(captions), volatile=True)
-                cap_lens = Variable(torch.from_numpy(cap_lens), volatile=True)
+                # captions = Variable(torch.from_numpy(captions), volatile=True)
+                # cap_lens = Variable(torch.from_numpy(cap_lens), volatile=True)
+                with torch.no_grad():
+                    captions = torch.from_numpy(captions)
+                with torch.no_grad():
+                    cap_lens = torch.from_numpy(cap_lens)
 
-                captions = captions.cuda()
-                cap_lens = cap_lens.cuda()
+                # captions = captions.cuda()
+                # cap_lens = cap_lens.cuda()
+                captions = captions.to(device='cuda')
+                cap_lens = cap_lens.to(device='cuda')
                 for i in range(1):  # 16
-                    noise = Variable(torch.FloatTensor(batch_size, nz), volatile=True)
-                    noise = noise.cuda()
+                    with torch.no_grad():
+                        noise = torch.FloatTensor(batch_size, nz).cuda()
                     #######################################################
                     # (1) Extract text embeddings
                     ######################################################
