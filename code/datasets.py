@@ -232,7 +232,7 @@ class TextDataset(data.Dataset):
                 print('Save to: ', filepath)
         else:
             with open(filepath, 'rb') as f:
-                x = pickle.load(f)
+                x = pickle.load(f,encoding="bytes")
                 train_captions, test_captions = x[0], x[1]
                 ixtoword, wordtoix = x[2], x[3]
                 del x
@@ -260,7 +260,7 @@ class TextDataset(data.Dataset):
         filepath = '%s/%s/filenames.pickle' % (data_dir, split)
         if os.path.isfile(filepath):
             with open(filepath, 'rb') as f:
-                filenames = pickle.load(f)
+                filenames = pickle.load(f,encoding="bytes")
             print('Load filenames from: %s (%d)' % (filepath, len(filenames)))
         else:
             filenames = []
