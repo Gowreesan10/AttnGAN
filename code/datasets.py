@@ -164,7 +164,7 @@ class TextDataset(data.Dataset):
 
                     tokens_new = []
                     for t in tokens:
-                        t = t.encode('ascii', 'ignore').decode('ascii', 'ignore')
+                        t = t.encode('ascii', 'ignore').decode('ascii')
                         if len(t) > 0:
                             tokens_new.append(t)
                     all_captions.append(tokens_new)
@@ -251,7 +251,7 @@ class TextDataset(data.Dataset):
     def load_class_id(self, data_dir, total_num):
         if os.path.isfile(data_dir + '/class_info.pickle'):
             with open(data_dir + '/class_info.pickle', 'rb') as f:
-                class_id = pickle.load(f)
+                class_id = pickle.load(f,encoding="bytes")
         else:
             class_id = np.arange(total_num)
         return class_id
