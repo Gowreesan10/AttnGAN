@@ -34,6 +34,20 @@ sys.path.append(dir_path)
 
 
 UPDATE_INTERVAL = 200
+import torch.utils.data.sampler as samplers
+
+class RandomSamplerTenPercent(samplers.Sampler):
+  def __init__(self, data_source):
+     self.data_source = data_source
+
+  def __iter__(self):
+     n = len(self.data_source)
+     return iter(torch.randperm(n).tolist()[:int(0.1 * n)])
+
+  def __len__(self):
+     return int(0.1 * len(self.data_source))  # Approximate  
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a DAMSM network')
     parser.add_argument('--cfg', dest='cfg_file',
@@ -244,9 +258,17 @@ if __name__ == "__main__":
 
     print(dataset.n_words, dataset.embeddings_num)
     assert dataset
+
     dataloader = torch.utils.data.DataLoader(
-        dataset, batch_size=batch_size, drop_last=True,
-        shuffle=True, num_workers=int(cfg.WORKERS))
+       dataset, batch_size=batch_size, drop_last=True, 
+       shuffle=False,  # Shuffle in the custom sampler instead
+       num_workers=int(cfg.WORKERS), 
+       sampler=RandomSamplerTenPercent(dataset)
+    )
+    
+    # dataloader = torch.utils.data.DataLoader(
+    #     dataset, batch_size=batch_size, drop_last=True,
+    #     shuffle=True, num_workers=int(cfg.WORKERS))
 
     # # validation data #
     dataset_val = TextDataset(cfg.DATA_DIR, 'test',
