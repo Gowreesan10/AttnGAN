@@ -143,18 +143,15 @@ if __name__ == "__main__":
 
     if cfg.SAMPLING:
       dataloader = torch.utils.data.DataLoader(
-         dataset, batch_size=batch_size, drop_last=True, 
+         dataset, batch_size=cfg.TRAIN.BATCH_SIZE, drop_last=True, 
          shuffle=False,  # Shuffle in the custom sampler instead
          num_workers=int(cfg.WORKERS), 
          sampler=RandomSamplerTenPercent(dataset)
       )
     else:
       dataloader = torch.utils.data.DataLoader(
-          dataset, batch_size=batch_size, drop_last=True,
-          shuffle=True, num_workers=int(cfg.WORKERS))
-    # dataloader = torch.utils.data.DataLoader(
-    #     dataset, batch_size=cfg.TRAIN.BATCH_SIZE,
-    #     drop_last=True, shuffle=bshuffle, num_workers=int(cfg.WORKERS))
+          dataset, batch_size=cfg.TRAIN.BATCH_SIZE,
+          drop_last=True, shuffle=bshuffle, num_workers=int(cfg.WORKERS))
 
     # Define models and go to train/evaluate
     algo = trainer(output_dir, dataloader, dataset.n_words, dataset.ixtoword)
