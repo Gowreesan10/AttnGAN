@@ -20,7 +20,19 @@ import torchvision.transforms as transforms
 dir_path = (os.path.abspath(os.path.join(os.path.realpath(__file__), './.')))
 sys.path.append(dir_path)
 
+import torch.utils.data.sampler as samplers
 
+class RandomSamplerTenPercent(samplers.Sampler):
+  def __init__(self, data_source):
+     self.data_source = data_source
+
+  def __iter__(self):
+     n = len(self.data_source)
+     return iter(torch.randperm(n).tolist()[:int(0.1 * n)])
+
+  def __len__(self):
+     return int(0.1 * len(self.data_source))  # Approximate  
+      
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a AttnGAN network')
     parser.add_argument('--cfg', dest='cfg_file',
@@ -128,9 +140,21 @@ if __name__ == "__main__":
                           base_size=cfg.TREE.BASE_SIZE,
                           transform=image_transform)
     assert dataset
-    dataloader = torch.utils.data.DataLoader(
-        dataset, batch_size=cfg.TRAIN.BATCH_SIZE,
-        drop_last=True, shuffle=bshuffle, num_workers=int(cfg.WORKERS))
+
+    if cfg.SAMPLING:
+      dataloader = torch.utils.data.DataLoader(
+         dataset, batch_size=batch_size, drop_last=True, 
+         shuffle=False,  # Shuffle in the custom sampler instead
+         num_workers=int(cfg.WORKERS), 
+         sampler=RandomSamplerTenPercent(dataset)
+      )
+    else:
+      dataloader = torch.utils.data.DataLoader(
+          dataset, batch_size=batch_size, drop_last=True,
+          shuffle=True, num_workers=int(cfg.WORKERS))
+    # dataloader = torch.utils.data.DataLoader(
+    #     dataset, batch_size=cfg.TRAIN.BATCH_SIZE,
+    #     drop_last=True, shuffle=bshuffle, num_workers=int(cfg.WORKERS))
 
     # Define models and go to train/evaluate
     algo = trainer(output_dir, dataloader, dataset.n_words, dataset.ixtoword)
