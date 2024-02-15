@@ -259,16 +259,17 @@ if __name__ == "__main__":
     print(dataset.n_words, dataset.embeddings_num)
     assert dataset
 
-    dataloader = torch.utils.data.DataLoader(
-       dataset, batch_size=batch_size, drop_last=True, 
-       shuffle=False,  # Shuffle in the custom sampler instead
-       num_workers=int(cfg.WORKERS), 
-       sampler=RandomSamplerTenPercent(dataset)
-    )
-    
-    # dataloader = torch.utils.data.DataLoader(
-    #     dataset, batch_size=batch_size, drop_last=True,
-    #     shuffle=True, num_workers=int(cfg.WORKERS))
+    if cfg.SAMPLING:
+      dataloader = torch.utils.data.DataLoader(
+         dataset, batch_size=batch_size, drop_last=True, 
+         shuffle=False,  # Shuffle in the custom sampler instead
+         num_workers=int(cfg.WORKERS), 
+         sampler=RandomSamplerTenPercent(dataset)
+      )
+    else:
+      dataloader = torch.utils.data.DataLoader(
+          dataset, batch_size=batch_size, drop_last=True,
+          shuffle=True, num_workers=int(cfg.WORKERS))
 
     # # validation data #
     dataset_val = TextDataset(cfg.DATA_DIR, 'test',
