@@ -36,6 +36,18 @@ sys.path.append(dir_path)
 UPDATE_INTERVAL = 200
 import torch.utils.data.sampler as samplers
 
+class RandomSamplerTenPercent(samplers.Sampler):
+  def __init__(self, data_source):
+     self.data_source = data_source
+
+  def __iter__(self):
+     n = len(self.data_source)
+     return iter(torch.randperm(n).tolist()[:int(0.1 * n)])
+
+  def __len__(self):
+     return int(0.1 * len(self.data_source))  # Approximate  
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a DAMSM network')
     parser.add_argument('--cfg', dest='cfg_file',
@@ -248,26 +260,16 @@ if __name__ == "__main__":
     assert dataset
 
     if cfg.SAMPLING:
-      # Calculate sampling parameters
-      total_datapoints = len(dataset)
-      interval_size = total_datapoints // 10
-      num_samples_from_interval = interval_size // 10 
-      # Sample 10% of the data with evenly spaced intervals
-      sampled_data = []
-      for interval_start in range(0, total_datapoints, interval_size):
-        interval_end = interval_start + interval_size
-        interval_data = dataset[interval_start:interval_end]  
-
-        # Evenly Spaced Sampling 
-        step_size = len(interval_data) // num_samples_from_interval
-        interval_samples = interval_data[::step_size] 
-
-        sampled_data.extend(interval_samples)
-       dataset = sampled_data 
-
-    dataloader = torch.utils.data.DataLoader(
-          dataset, batch_size=cfg.TRAIN.BATCH_SIZE,
-          drop_last=True, shuffle=bshuffle, num_workers=int(cfg.WORKERS))
+      dataloader = torch.utils.data.DataLoader(
+         dataset, batch_size=batch_size, drop_last=True, 
+         shuffle=False,  # Shuffle in the custom sampler instead
+         num_workers=int(cfg.WORKERS), 
+         sampler=RandomSamplerTenPercent(dataset)
+      )
+    else:
+      dataloader = torch.utils.data.DataLoader(
+          dataset, batch_size=batch_size, drop_last=True,
+          shuffle=True, num_workers=int(cfg.WORKERS))
 
     # # validation data #
     dataset_val = TextDataset(cfg.DATA_DIR, 'test',
