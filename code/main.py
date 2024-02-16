@@ -144,7 +144,7 @@ if __name__ == "__main__":
         interval_samples = interval_data[::step_size] 
 
         sampled_data.extend(interval_samples)
-     dataset = sampled_data 
+       dataset = sampled_data 
 
     dataloader = torch.utils.data.DataLoader(
           dataset, batch_size=cfg.TRAIN.BATCH_SIZE,
